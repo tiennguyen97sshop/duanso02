@@ -26,20 +26,20 @@
       </div>
     </section>
 
-    <section id="wheel-section" class="hidden">
+    <section id="wheel-section">
       <canvas id="wheelCanvas" width="350" height="350"></canvas>
       <button id="spinButton">🎡 Quay Ngay</button>
     </section>
 
     <section class="history-section">
-      <div class="history-header">
-        <h2>Danh Sách Người Nhận Quà</h2>
-        <button id="clearHistory">🗑 Xoá lịch sử</button>
+      <h2>Danh Sách Người Nhận Quà</h2>
+      <div class="history-container">
+        <table id="historyTable">
+          <thead><tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr></thead>
+          <tbody></tbody>
+        </table>
       </div>
-      <table id="historyTable">
-        <thead><tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <button id="clearHistoryBottom">🗑 Xoá lịch sử nhận quà</button>
     </section>
   </main>
 
