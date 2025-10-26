@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vòng Quay May Mắn - Tiến Nguyễn</title>
   <link rel="icon" type="image/png" href="assets/favicon.png">
@@ -14,24 +14,21 @@
 
   <main class="container">
     <section class="input-section">
-      <label for="names">Tên người nhận:</label>
-      <input id="names" placeholder="Nhập tên cách nhau bằng dấu phẩy (,)" />
-      <label for="gifts">Danh sách quà:</label>
+      <label>Tên người nhận:</label>
+      <input id="names" placeholder="Nhập tên, cách nhau bằng dấu phẩy (,)" />
+      <label>Danh sách quà:</label>
       <textarea id="gifts" placeholder="Nhập quà, cách nhau bằng dấu phẩy (,)"></textarea>
-      <button id="generateWheel">Tạo vòng quay</button>
     </section>
 
     <section id="wheel-section" class="hidden">
-      <canvas id="wheelCanvas" width="300" height="300"></canvas>
-      <button id="spinButton">Quay Ngay</button>
+      <canvas id="wheelCanvas" width="350" height="350"></canvas>
+      <button id="spinButton">🎡 Quay Ngay</button>
     </section>
 
     <section class="history-section">
       <h2>Danh Sách Người Nhận Quà</h2>
       <table id="historyTable">
-        <thead>
-          <tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr>
-        </thead>
+        <thead><tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr></thead>
         <tbody></tbody>
       </table>
     </section>
@@ -39,7 +36,7 @@
 
   <div id="popup" class="popup hidden">
     <div class="popup-content">
-      <h2 id="popup-title">🎉 Chúc mừng!</h2>
+      <h2>🎉 Chúc mừng!</h2>
       <p id="popup-text"></p>
       <button id="closePopup">Đóng</button>
     </div>
@@ -48,13 +45,14 @@
   <div class="menu">
     <button id="menuToggle">☰</button>
     <div id="menuContent" class="hidden">
-      <button id="toggleMusic">🔊 Tắt/Mở Nhạc</button>
+      <button id="toggleMusic">🔊 Bật/Tắt Nhạc</button>
       <p>Tác giả: <b>Tiến Nguyễn</b></p>
     </div>
   </div>
 
   <audio id="bgMusic" src="assets/music.mp3" loop></audio>
   <audio id="winSound" src="assets/win.mp3"></audio>
+
   <script src="assets/script.js"></script>
 </body>
 </html>
