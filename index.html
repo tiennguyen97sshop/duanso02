@@ -16,8 +16,14 @@
     <section class="input-section">
       <label>Tên người nhận:</label>
       <input id="names" placeholder="Nhập tên, cách nhau bằng dấu phẩy (,)" />
+
       <label>Danh sách quà:</label>
       <textarea id="gifts" placeholder="Nhập quà, cách nhau bằng dấu phẩy (,)"></textarea>
+
+      <div class="manage-buttons">
+        <button id="clearNames">❌ Xoá người nhận</button>
+        <button id="clearGifts">🎁 Xoá quà</button>
+      </div>
     </section>
 
     <section id="wheel-section" class="hidden">
@@ -26,7 +32,10 @@
     </section>
 
     <section class="history-section">
-      <h2>Danh Sách Người Nhận Quà</h2>
+      <div class="history-header">
+        <h2>Danh Sách Người Nhận Quà</h2>
+        <button id="clearHistory">🗑 Xoá lịch sử</button>
+      </div>
       <table id="historyTable">
         <thead><tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr></thead>
         <tbody></tbody>
@@ -45,7 +54,7 @@
   <div class="menu">
     <button id="menuToggle">☰</button>
     <div id="menuContent" class="hidden">
-      <button id="toggleMusic">🔊 Bật/Tắt Nhạc</button>
+      <button id="toggleMusic">🔊 Tắt nhạc</button>
       <p>Tác giả: <b>Tiến Nguyễn</b></p>
     </div>
   </div>
