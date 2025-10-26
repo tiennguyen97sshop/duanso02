@@ -67,19 +67,24 @@ input, textarea {
   border-radius: 10px;
 }
 
-.history-header {
-  display: flex; justify-content: space-between; align-items: center;
-}
-
-#clearHistory {
-  background: #ffcc00; color: #b30000;
-  border: none; border-radius: 6px;
-  padding: .3rem .6rem;
-  cursor: pointer;
+.history-container {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: .5rem;
 }
 
 table { width: 100%; border-collapse: collapse; }
 th,td { border-bottom: 1px solid rgba(255,255,255,0.3); padding: .4rem; }
+
+#clearHistoryBottom {
+  background: #ffcc00;
+  color: #b30000;
+  border: none;
+  border-radius: 6px;
+  padding: .4rem .8rem;
+  font-weight: bold;
+  cursor: pointer;
+}
 
 .popup {
   position: fixed; inset: 0;
