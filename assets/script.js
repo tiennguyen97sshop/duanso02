@@ -1,104 +1,132 @@
+const wheelCanvas = document.getElementById("wheelCanvas");
+const ctx = wheelCanvas.getContext("2d");
+const spinBtn = document.getElementById("spinBtn");
+const popup = document.getElementById("popup");
+const popupTitle = document.getElementById("popupTitle");
+const popupText = document.getElementById("popupText");
+const closePopup = document.getElementById("closePopup");
+const fireworks = document.querySelector(".fireworks");
+
+const bgMusic = document.getElementById("bgMusic");
+const spinSound = document.getElementById("spinSound");
+
+const musicToggle = document.getElementById("musicToggle");
+const soundToggle = document.getElementById("soundToggle");
+
 let names = [];
-let gifts = [];
+let prizes = [];
+let winners = JSON.parse(localStorage.getItem("winners")) || [];
+
 let spinning = false;
-let soundEnabled = true;
+let currentAngle = 0;
+let wheelColors = [];
 
-const ctx = document.getElementById('wheel').getContext('2d');
-let colors = ['#ff6384','#36a2eb','#ffce56','#4bc0c0','#9966ff','#ff9f40'];
+function randomColor() {
+  const r = Math.floor(Math.random() * 200 + 55);
+  const g = Math.floor(Math.random() * 200 + 55);
+  const b = Math.floor(Math.random() * 200 + 55);
+  return `rgb(${r},${g},${b})`;
+}
 
-function drawWheel() {
-  let slices = gifts.length;
-  let angle = 2 * Math.PI / slices;
-  for (let i = 0; i < slices; i++) {
+function drawWheel(items) {
+  const num = items.length;
+  const arc = (2 * Math.PI) / num;
+  wheelColors = Array(num).fill().map(randomColor);
+
+  ctx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+  for (let i = 0; i < num; i++) {
+    const start = i * arc + currentAngle;
     ctx.beginPath();
-    ctx.moveTo(200, 200);
-    ctx.arc(200, 200, 200, i * angle, (i + 1) * angle);
-    ctx.fillStyle = colors[i % colors.length];
+    ctx.fillStyle = wheelColors[i];
+    ctx.moveTo(150, 150);
+    ctx.arc(150, 150, 150, start, start + arc);
+    ctx.lineTo(150, 150);
     ctx.fill();
     ctx.save();
-    ctx.translate(200, 200);
-    ctx.rotate(i * angle + angle / 2);
-    ctx.fillStyle = 'white';
-    ctx.textAlign = 'right';
-    ctx.font = '16px Segoe UI';
-    ctx.fillText(gifts[i], 180, 5);
+    ctx.translate(150, 150);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillText(items[i], 140, 5);
     ctx.restore();
   }
 }
 
-function saveData() {
-  names = document.getElementById('names').value.split(',').map(x => x.trim()).filter(x=>x);
-  gifts = document.getElementById('gifts').value.split(',').map(x => x.trim()).filter(x=>x);
-  localStorage.setItem('names', JSON.stringify(names));
-  localStorage.setItem('gifts', JSON.stringify(gifts));
-  if(gifts.length>0) drawWheel();
+function updateWinnersList() {
+  const list = document.getElementById("winnersList");
+  list.innerHTML = "";
+  winners.forEach(w => {
+    const li = document.createElement("li");
+    li.textContent = `${w.name} | ${w.prize} (${w.time})`;
+    list.appendChild(li);
+  });
 }
 
-function resetData() {
-  localStorage.clear();
-  names=[]; gifts=[];
-  document.getElementById('giftList').innerHTML='<tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr>';
-}
-
-function toggleMenu(){
-  const menu=document.getElementById('settingsMenu');
-  menu.style.display=(menu.style.display==='block')?'none':'block';
-}
-
-function toggleSound(){
-  soundEnabled=!soundEnabled;
-  if(!soundEnabled){document.getElementById('bgMusic').pause();}
-  else{document.getElementById('bgMusic').play();}
-}
-
-window.onload = () => {
-  const n = localStorage.getItem('names');
-  const g = localStorage.getItem('gifts');
-  if(n && g){
-    names = JSON.parse(n); gifts = JSON.parse(g); drawWheel();
+document.getElementById("updateWheel").addEventListener("click", () => {
+  names = document.getElementById("namesInput").value.split(",").map(n => n.trim()).filter(Boolean);
+  prizes = document.getElementById("prizesInput").value.split(",").map(n => n.trim()).filter(Boolean);
+  if (names.length && prizes.length) {
+    document.getElementById("wheelSection").classList.remove("hidden");
+    drawWheel(prizes);
   }
-  const bgm = document.getElementById('bgMusic');
-  bgm.volume = 0.2; bgm.play();
-};
+});
 
-function spinWheel() {
-  if (spinning || gifts.length === 0 || names.length === 0) return;
+spinBtn.addEventListener("click", () => {
+  if (spinning || !prizes.length) return;
   spinning = true;
-  let deg = Math.floor(5000 + Math.random() * 5000);
-  const sound = document.getElementById('tickSound');
-  let rotation = 0;
-  let spin = setInterval(() => {
-    ctx.clearRect(0,0,400,400);
-    ctx.save();
-    ctx.translate(200,200);
-    ctx.rotate((rotation * Math.PI)/180);
-    ctx.translate(-200,-200);
-    drawWheel();
-    ctx.restore();
-    rotation += 20;
-    if (soundEnabled) sound.play();
-    if (rotation >= deg) {
-      clearInterval(spin);
+
+  if (soundToggle.checked) spinSound.play();
+
+  const randomDeg = 3600 + Math.random() * 360;
+  const duration = 4000;
+  const start = performance.now();
+
+  requestAnimationFrame(function rotate(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    currentAngle = (randomDeg * progress * Math.PI) / 180;
+    drawWheel(prizes);
+    if (progress < 1) requestAnimationFrame(rotate);
+    else {
       spinning = false;
-      const index = Math.floor(((deg % 360) / 360) * gifts.length);
-      const selectedGift = gifts[gifts.length - 1 - index];
-      const selectedName = names[Math.floor(Math.random() * names.length)];
-      showPopup(selectedName, selectedGift);
+      const idx = Math.floor(((2 * Math.PI) - (currentAngle % (2 * Math.PI))) / ((2 * Math.PI) / prizes.length)) % prizes.length;
+      const prize = prizes[idx];
+      const name = names[Math.floor(Math.random() * names.length)];
+      const isSpecial = Math.random() < 0.01;
+      const time = new Date().toLocaleString();
+
+      winners.push({ name, prize, time });
+      localStorage.setItem("winners", JSON.stringify(winners));
+      updateWinnersList();
+
+      popupTitle.textContent = isSpecial ? "🎉 GIẢI ĐẶC BIỆT 🎉" : "Chúc mừng!";
+      popupText.textContent = `${name} nhận được: ${prize}`;
+      popup.classList.remove("hidden");
+      fireworks.classList.toggle("hidden", !isSpecial);
     }
-  }, 20);
-}
+  });
+});
 
-function showPopup(name, gift){
-  const popup=document.getElementById('popup');
-  const result=document.getElementById('popupResult');
-  result.innerText = `${name} nhận được ${gift}!`;
-  popup.style.display='flex';
-  const now=new Date().toLocaleString();
-  let table=document.getElementById('giftList');
-  table.innerHTML+=`<tr><td>${name}</td><td>${gift}</td><td>${now}</td></tr>`;
-  localStorage.setItem('giftList', table.innerHTML);
-}
+closePopup.addEventListener("click", () => {
+  popup.classList.add("hidden");
+});
 
-function closePopup(){
-  document.getElementById('popup').style.display='none';
-}
+document.getElementById("menuToggle").addEventListener("click", () => {
+  document.getElementById("menuContent").classList.toggle("hidden");
+});
+
+musicToggle.addEventListener("change", () => {
+  if (musicToggle.checked) bgMusic.play();
+  else bgMusic.pause();
+});
+
+soundToggle.addEventListener("change", () => {
+  if (!soundToggle.checked) spinSound.pause();
+});
+
+window.addEventListener("load", () => {
+  updateWinnersList();
+  bgMusic.volume = 0.3;
+  if (musicToggle.checked) bgMusic.play();
+});
