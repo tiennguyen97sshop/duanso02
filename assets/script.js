@@ -63,6 +63,14 @@ document.getElementById("updateWheel").addEventListener("click", () => {
   }
 });
 
+// Khi quay xong:
+popup.classList.add("active"); // thay vì remove "hidden"
+
+// Nút óng popup:
+closePopup.addEventListener("click", () => {
+  popup.classList.remove("active"); // thay vì add "hidden"
+});
+
 spinBtn.addEventListener("click", () => {
   if (spinning || !prizes.length) return;
   spinning = true;
