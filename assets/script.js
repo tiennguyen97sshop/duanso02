@@ -93,22 +93,25 @@ function finishSpin(){
 }
 
 function showPopup(gift){
+  const names = namesInput.value.split(",").map(x=>x.trim()).filter(x=>x);
+  const randomName = names.length ? names[Math.floor(Math.random()*names.length)] : "Người chơi";
+
   popup.classList.remove("hidden");
-  popupText.textContent = `Bạn đã trúng: ${gift}`;
-  if (Math.random() < 0.01){
+  popupText.innerHTML = `🎉 <b>Chúc mừng ${randomName}</b> đã nhận được <b>${gift}</b>! 🎁`;
+
+  if (Math.random() < 0.01){ // Giải đặc biệt
     winSound.play();
   }
-  saveHistory(gift);
+
+  saveHistory(randomName, gift);
 }
 
 closePopup.onclick = ()=> popup.classList.add("hidden");
 
-function saveHistory(gift){
-  const names = namesInput.value.split(",").map(x=>x.trim()).filter(x=>x);
-  const randomName = names.length ? names[Math.floor(Math.random()*names.length)] : "Người chơi";
+function saveHistory(name, gift){
   const time = new Date().toLocaleString("vi-VN");
   const history = JSON.parse(localStorage.getItem("history")||"[]");
-  history.push({name:randomName,gift,time});
+  history.push({name, gift, time});
   localStorage.setItem("history",JSON.stringify(history));
   renderHistory();
 }
