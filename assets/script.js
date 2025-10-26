@@ -1,127 +1,120 @@
+const namesInput = document.getElementById("names");
+const giftsInput = document.getElementById("gifts");
+const generateBtn = document.getElementById("generateWheel");
+const wheelSection = document.getElementById("wheel-section");
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
-const spinBtn = document.getElementById("spinBtn");
+const spinBtn = document.getElementById("spinButton");
 const popup = document.getElementById("popup");
-const popupTitle = document.getElementById("popupTitle");
-const popupText = document.getElementById("popupText");
+const popupText = document.getElementById("popup-text");
 const closePopup = document.getElementById("closePopup");
-const fireworks = document.querySelector(".fireworks");
+const historyTable = document.querySelector("#historyTable tbody");
 const bgMusic = document.getElementById("bgMusic");
-const spinSound = document.getElementById("spinSound");
+const winSound = document.getElementById("winSound");
+const menuToggle = document.getElementById("menuToggle");
+const menuContent = document.getElementById("menuContent");
+const toggleMusic = document.getElementById("toggleMusic");
 
-let names = [];
-let prizes = [];
-let winners = JSON.parse(localStorage.getItem("winners")) || [];
-let currentAngle = 0;
+let segments = ["Quà 1","Quà 2","Quà 3","Quà 4","Quà 5","Quà 6"];
+let arc = Math.PI * 2 / segments.length;
+let startAngle = 0;
+let spinTimeout = null;
+let spinAngle = 0;
 let spinning = false;
 
-// pastel color generator
-function pastelColor() {
-  const hue = Math.floor(Math.random() * 360);
-  return `hsl(${hue}, 100%, 80%)`;
-}
-
-function drawWheel(items) {
-  const num = items.length;
-  const arc = (2 * Math.PI) / num;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < num; i++) {
-    const start = i * arc + currentAngle;
+function drawWheel(){
+  const colors = ["#FFEE58","#FF7043","#66BB6A","#29B6F6","#AB47BC","#EF5350"];
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<segments.length;i++){
+    const angle = startAngle + i*arc;
     ctx.beginPath();
-    ctx.fillStyle = pastelColor();
-    ctx.moveTo(150, 150);
-    ctx.arc(150, 150, 150, start, start + arc);
-    ctx.lineTo(150, 150);
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.moveTo(150,150);
+    ctx.arc(150,150,150,angle,angle+arc);
     ctx.fill();
     ctx.save();
-    ctx.translate(150, 150);
-    ctx.rotate(start + arc / 2);
-    ctx.textAlign = "right";
-    ctx.fillStyle = "#333";
-    ctx.font = "bold 14px sans-serif";
-    ctx.fillText(items[i], 135, 5);
+    ctx.translate(150,150);
+    ctx.rotate(angle+arc/2);
+    ctx.textAlign="right";
+    ctx.fillStyle="#000";
+    ctx.font="bold 14px sans-serif";
+    ctx.fillText(segments[i],130,5);
     ctx.restore();
   }
 }
 
-function updateWinners() {
-  const list = document.getElementById("winnersList");
-  list.innerHTML = "";
-  winners.forEach(w => {
-    const li = document.createElement("li");
-    li.textContent = `${w.name} | ${w.prize} (${w.time})`;
-    list.appendChild(li);
-  });
+function spin(){
+  if(spinning) return;
+  spinning = true;
+  let spinAngleStart = Math.random() * 10 + 10;
+  let spinTime = 0;
+  let spinTimeTotal = 3000 + Math.random()*2000;
+
+  function rotateWheel(){
+    spinTime += 30;
+    if(spinTime >= spinTimeTotal){
+      stopRotate();
+      return;
+    }
+    const ease = easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+    startAngle += (ease * Math.PI / 180);
+    drawWheel();
+    spinTimeout = setTimeout(rotateWheel,30);
+  }
+  rotateWheel();
 }
 
-document.getElementById("updateWheel").addEventListener("click", () => {
-  names = document.getElementById("namesInput").value.split(",").map(n => n.trim()).filter(Boolean);
-  prizes = document.getElementById("prizesInput").value.split(",").map(n => n.trim()).filter(Boolean);
-  if (prizes.length) {
-    document.getElementById("wheelSection").classList.remove("hidden");
-    drawWheel(prizes);
+function stopRotate(){
+  clearTimeout(spinTimeout);
+  const degrees = startAngle * 180 / Math.PI + 90;
+  const arcd = 360 / segments.length;
+  const index = Math.floor((360 - (degrees % 360)) / arcd);
+  const gift = segments[index];
+  showPopup(gift);
+  spinning = false;
+}
+
+function easeOut(t,b,c,d){ return c*((t=t/d-1)*t*t + 1) + b; }
+
+function showPopup(gift){
+  popup.classList.remove("hidden");
+  popupText.textContent = `Bạn đã trúng: ${gift}`;
+  if(Math.random()<0.01){
+    document.body.style.backgroundImage = "url('assets/fireworks.gif')";
+    winSound.play();
   }
-});
+  saveHistory(gift);
+}
 
-// Khi quay xong:
-popup.classList.add("active"); // thay v� remove "hidden"
-
-// N�t �ng popup:
-closePopup.addEventListener("click", () => {
-  popup.classList.remove("active"); // thay v� add "hidden"
-});
-
-spinBtn.addEventListener("click", () => {
-  if (spinning || !prizes.length) return;
-  spinning = true;
-
-  if (document.getElementById("soundToggle").checked) spinSound.play();
-
-  const randomDeg = 3600 + Math.random() * 720;
-  const duration = 4000;
-  const start = performance.now();
-
-  requestAnimationFrame(function rotate(now) {
-    const elapsed = now - start;
-    const progress = Math.min(elapsed / duration, 1);
-    currentAngle = (randomDeg * progress * Math.PI) / 180;
-    drawWheel(prizes);
-    if (progress < 1) requestAnimationFrame(rotate);
-    else {
-      spinning = false;
-      const index = Math.floor(((2 * Math.PI) - (currentAngle % (2 * Math.PI))) / ((2 * Math.PI) / prizes.length)) % prizes.length;
-      const prize = prizes[index];
-      const name = names[Math.floor(Math.random() * names.length)] || "Ngi chi";
-      const special = Math.random() < 0.01;
-      const time = new Date().toLocaleString();
-
-      winners.push({ name, prize, time });
-      localStorage.setItem("winners", JSON.stringify(winners));
-      updateWinners();
-
-      popupTitle.textContent = special ? " GII C BIT " : "Ch�c mng!";
-      popupText.textContent = `${name} nhn c: ${prize}`;
-      fireworks.classList.toggle("hidden", !special);
-      popup.classList.remove("hidden");
-    }
-  });
-});
-
-closePopup.addEventListener("click", () => {
+closePopup.onclick=()=>{
   popup.classList.add("hidden");
-});
+  document.body.style.backgroundImage = "";
+};
 
-document.getElementById("menuToggle").addEventListener("click", () => {
-  document.getElementById("menuContent").classList.toggle("hidden");
-});
+generateBtn.onclick=()=>{
+  const gifts = giftsInput.value.split(",").map(g=>g.trim()).filter(g=>g);
+  if(gifts.length>0){ segments = gifts; arc=Math.PI*2/segments.length; drawWheel(); wheelSection.classList.remove("hidden"); }
+};
 
-document.getElementById("musicToggle").addEventListener("change", (e) => {
-  if (e.target.checked) bgMusic.play();
-  else bgMusic.pause();
-});
+spinBtn.onclick=spin;
 
-window.addEventListener("load", () => {
-  updateWinners();
-  bgMusic.volume = 0.3;
-  if (document.getElementById("musicToggle").checked) bgMusic.play();
-});
+menuToggle.onclick=()=>menuContent.classList.toggle("hidden");
+toggleMusic.onclick=()=> bgMusic.paused ? bgMusic.play() : bgMusic.pause();
+
+function saveHistory(gift){
+  const nameList = namesInput.value.split(",").map(n=>n.trim()).filter(n=>n);
+  const randomName = nameList[Math.floor(Math.random()*nameList.length)] || "Người chơi";
+  const time = new Date().toLocaleString("vi-VN");
+  const data = {name:randomName,gift,time};
+  const old = JSON.parse(localStorage.getItem("history")||"[]");
+  old.push(data);
+  localStorage.setItem("history",JSON.stringify(old));
+  renderHistory();
+}
+
+function renderHistory(){
+  const list = JSON.parse(localStorage.getItem("history")||"[]");
+  historyTable.innerHTML = list.map(e=>`<tr><td>${e.name}</td><td>${e.gift}</td><td>${e.time}</td></tr>`).join("");
+}
+renderHistory();
+drawWheel();
