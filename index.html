@@ -1,45 +1,53 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎡 Vòng Quay May Mắn Nhận Lì Xì 🎁 - Tiến Nguyễn</title>
-<link rel="icon" type="image/png" href="assets/favicon.png">
-<link rel="stylesheet" href="assets/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎡 Vòng Quay May Mắn Nhận Lì Xì 🎁 - Tiến Nguyễn</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
-<header>
-  <h1>🎡 Vòng Quay May Mắn Nhận Lì Xì 🎁</h1>
-</header>
-<div id="menu">
-  <button onclick="toggleMenu()">⚙️</button>
-  <div id="settingsMenu">
-    <button onclick="toggleSound()">🔈 Bật/Tắt Âm Thanh</button>
+  <header>
+    <img src="assets/banner.jpg" alt="Vòng Quay May Mắn Nhận Lì Xì" class="banner" />
+  </header>
+
+  <div id="menu">
+    <button onclick="toggleMenu()">⚙️</button>
+    <div id="settingsMenu">
+      <button onclick="toggleSound()">🔈 Bật/Tắt Âm Thanh</button>
+    </div>
   </div>
-</div>
-<div class="input-section">
-  <input id="names" placeholder="Nhập tên (VD: Anh A, Anh B, Anh C)"><br>
-  <input id="gifts" placeholder="Nhập quà (VD: Quà 1, Quà 2, Quà 3)"><br>
-  <button onclick="saveData()">💾 Lưu & Cập Nhật</button>
-  <button onclick="resetData()">🧹 Reset Dữ Liệu</button>
-</div>
-<canvas id="wheel" width="400" height="400"></canvas>
-<button id="spinBtn" onclick="spinWheel()">🎯 Quay Ngay!</button>
-<h2>📜 Danh Sách Người Nhận Quà</h2>
-<table id="giftList">
-  <tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr>
-</table>
-<div class="popup" id="popup">
-  <div class="popup-content">
-    <h3 id="popupResult"></h3>
-    <button onclick="closePopup()">Đóng</button>
+
+  <div class="input-section">
+    <input id="names" placeholder="Nhập tên (VD: Anh A, Anh B, Anh C)" />
+    <input id="gifts" placeholder="Nhập quà (VD: Quà 1, Quà 2, Quà 3)" />
+    <button onclick="saveData()">💾 Lưu & Cập Nhật</button>
+    <button onclick="resetData()">🧹 Reset Dữ Liệu</button>
   </div>
-</div>
-<canvas class="fireworks" id="fireworks"></canvas>
-<footer>© 2025 – Tiến Nguyễn</footer>
-<audio id="tickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-<audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-<audio id="specialSound" src="https://actions.google.com/sounds/v1/ambiences/fireworks.ogg"></audio>
-<script src="assets/script.js"></script>
+
+  <canvas id="wheel" width="400" height="400"></canvas>
+  <button id="spinBtn" onclick="spinWheel()">🎯 Quay Ngay!</button>
+
+  <h2>📜 Danh Sách Người Nhận Quà</h2>
+  <table id="giftList">
+    <tr><th>Tên</th><th>Quà</th><th>Thời gian</th></tr>
+  </table>
+
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <h3 id="popupResult"></h3>
+      <img id="fireworks" src="assets/fireworks.gif" alt="Pháo hoa" />
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
+
+  <footer>© 2025 – Tiến Nguyễn</footer>
+
+  <audio id="bgMusic" src="assets/music.mp3" loop></audio>
+  <audio id="tickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+  <audio id="winSound" src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+
+  <script src="assets/script.js"></script>
 </body>
 </html>
