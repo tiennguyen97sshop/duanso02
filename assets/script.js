@@ -1,6 +1,5 @@
 const namesInput = document.getElementById("names");
 const giftsInput = document.getElementById("gifts");
-const generateBtn = document.getElementById("generateWheel");
 const wheelSection = document.getElementById("wheel-section");
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
@@ -15,106 +14,113 @@ const menuToggle = document.getElementById("menuToggle");
 const menuContent = document.getElementById("menuContent");
 const toggleMusic = document.getElementById("toggleMusic");
 
-let segments = ["Quà 1","Quà 2","Quà 3","Quà 4","Quà 5","Quà 6"];
-let arc = Math.PI * 2 / segments.length;
+let segments = [];
 let startAngle = 0;
-let spinTimeout = null;
-let spinAngle = 0;
 let spinning = false;
+let arc = 0;
 
-function drawWheel(){
+function drawWheel() {
+  const size = canvas.width / 2;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (segments.length === 0) return;
+  arc = Math.PI * 2 / segments.length;
   const colors = ["#FFEE58","#FF7043","#66BB6A","#29B6F6","#AB47BC","#EF5350"];
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(let i=0;i<segments.length;i++){
-    const angle = startAngle + i*arc;
+  for (let i = 0; i < segments.length; i++) {
+    const angle = startAngle + i * arc;
     ctx.beginPath();
     ctx.fillStyle = colors[i % colors.length];
-    ctx.moveTo(150,150);
-    ctx.arc(150,150,150,angle,angle+arc);
+    ctx.moveTo(size, size);
+    ctx.arc(size, size, size, angle, angle + arc);
     ctx.fill();
     ctx.save();
-    ctx.translate(150,150);
-    ctx.rotate(angle+arc/2);
-    ctx.textAlign="right";
-    ctx.fillStyle="#000";
-    ctx.font="bold 14px sans-serif";
-    ctx.fillText(segments[i],130,5);
+    ctx.translate(size, size);
+    ctx.rotate(angle + arc / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillText(segments[i], size - 10, 5);
     ctx.restore();
   }
 }
 
-function spin(){
-  if(spinning) return;
+function spin() {
+  if (spinning || segments.length === 0) return;
   spinning = true;
-  let spinAngleStart = Math.random() * 10 + 10;
   let spinTime = 0;
-  let spinTimeTotal = 3000 + Math.random()*2000;
+  const spinTotal = 4000 + Math.random() * 2000;
+  const spinStart = 20 + Math.random() * 10;
 
-  function rotateWheel(){
+  function rotate() {
     spinTime += 30;
-    if(spinTime >= spinTimeTotal){
-      stopRotate();
+    if (spinTime >= spinTotal) {
+      finishSpin();
       return;
     }
-    const ease = easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+    const ease = easeOut(spinTime, 0, spinStart, spinTotal);
     startAngle += (ease * Math.PI / 180);
     drawWheel();
-    spinTimeout = setTimeout(rotateWheel,30);
+    requestAnimationFrame(rotate);
   }
-  rotateWheel();
+  rotate();
 }
 
-function stopRotate(){
-  clearTimeout(spinTimeout);
+function easeOut(t, b, c, d) {
+  t /= d;
+  t--;
+  return c*(t*t*t + 1) + b;
+}
+
+function finishSpin() {
+  spinning = false;
   const degrees = startAngle * 180 / Math.PI + 90;
   const arcd = 360 / segments.length;
   const index = Math.floor((360 - (degrees % 360)) / arcd);
   const gift = segments[index];
   showPopup(gift);
-  spinning = false;
 }
 
-function easeOut(t,b,c,d){ return c*((t=t/d-1)*t*t + 1) + b; }
-
-function showPopup(gift){
+function showPopup(gift) {
   popup.classList.remove("hidden");
   popupText.textContent = `Bạn đã trúng: ${gift}`;
-  if(Math.random()<0.01){
+  if (Math.random() < 0.01) { // Giải đặc biệt
     document.body.style.backgroundImage = "url('assets/fireworks.gif')";
     winSound.play();
   }
   saveHistory(gift);
 }
 
-closePopup.onclick=()=>{
+closePopup.onclick = () => {
   popup.classList.add("hidden");
   document.body.style.backgroundImage = "";
 };
 
-generateBtn.onclick=()=>{
-  const gifts = giftsInput.value.split(",").map(g=>g.trim()).filter(g=>g);
-  if(gifts.length>0){ segments = gifts; arc=Math.PI*2/segments.length; drawWheel(); wheelSection.classList.remove("hidden"); }
-};
-
-spinBtn.onclick=spin;
-
-menuToggle.onclick=()=>menuContent.classList.toggle("hidden");
-toggleMusic.onclick=()=> bgMusic.paused ? bgMusic.play() : bgMusic.pause();
-
-function saveHistory(gift){
-  const nameList = namesInput.value.split(",").map(n=>n.trim()).filter(n=>n);
-  const randomName = nameList[Math.floor(Math.random()*nameList.length)] || "Người chơi";
+function saveHistory(gift) {
+  const names = namesInput.value.split(",").map(x=>x.trim()).filter(x=>x);
+  const randomName = names.length ? names[Math.floor(Math.random()*names.length)] : "Người chơi";
   const time = new Date().toLocaleString("vi-VN");
-  const data = {name:randomName,gift,time};
-  const old = JSON.parse(localStorage.getItem("history")||"[]");
-  old.push(data);
-  localStorage.setItem("history",JSON.stringify(old));
+  const history = JSON.parse(localStorage.getItem("history")||"[]");
+  history.push({name:randomName,gift,time});
+  localStorage.setItem("history",JSON.stringify(history));
   renderHistory();
 }
 
-function renderHistory(){
-  const list = JSON.parse(localStorage.getItem("history")||"[]");
-  historyTable.innerHTML = list.map(e=>`<tr><td>${e.name}</td><td>${e.gift}</td><td>${e.time}</td></tr>`).join("");
+function renderHistory() {
+  const history = JSON.parse(localStorage.getItem("history")||"[]");
+  historyTable.innerHTML = history.map(h=>`<tr><td>${h.name}</td><td>${h.gift}</td><td>${h.time}</td></tr>`).join("");
 }
+
+menuToggle.onclick = ()=>menuContent.classList.toggle("hidden");
+toggleMusic.onclick = ()=> bgMusic.paused ? bgMusic.play() : bgMusic.pause();
+
+namesInput.oninput = giftsInput.oninput = ()=>{
+  const gifts = giftsInput.value.split(",").map(g=>g.trim()).filter(g=>g);
+  if (gifts.length > 0) {
+    segments = gifts;
+    drawWheel();
+    wheelSection.classList.remove("hidden");
+  }
+};
+
+spinBtn.onclick = spin;
+
 renderHistory();
-drawWheel();

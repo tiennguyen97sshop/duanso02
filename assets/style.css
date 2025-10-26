@@ -1,103 +1,95 @@
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(120deg, #ff512f, #dd2476);
+  background: linear-gradient(120deg,#ff512f,#dd2476);
   color: #fff;
-  overflow-x: hidden;
+  text-align: center;
 }
 
-.banner img {
-  width: 100%;
-  display: block;
-}
+.banner img { width: 100%; display: block; }
 
-.container {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+.container { padding: 1rem; }
 
-.input-section, .history-section {
-  width: 90%;
-  max-width: 500px;
+.input-section {
   background: rgba(255,255,255,0.1);
   padding: 1rem;
   border-radius: 10px;
+  margin-bottom: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+label { display: block; margin-top: .5rem; text-align: left; }
+input, textarea {
+  width: 100%; padding: .5rem; margin-top: .25rem;
+  border-radius: 6px; border: none;
+}
+
+#wheel-section {
+  display: flex; flex-direction: column; align-items: center;
   margin: 1rem 0;
 }
 
-label {
-  display: block;
-  margin-top: 0.5rem;
-}
-
-input, textarea {
-  width: 100%;
-  border: none;
-  border-radius: 5px;
-  padding: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-button {
+#spinButton {
   background: #ffcc00;
   color: #b30000;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
   font-weight: bold;
-  margin-top: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  padding: .7rem 1.2rem;
   cursor: pointer;
+  transition: .3s;
 }
-button:hover { background: #ffee00; }
+#spinButton:hover { background: #ffee00; }
 
 #wheelCanvas {
-  margin-top: 1rem;
   border-radius: 50%;
   box-shadow: 0 0 20px #fff;
 }
 
+.history-section {
+  max-width: 600px;
+  margin: auto;
+  background: rgba(255,255,255,0.1);
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th,td { border-bottom: 1px solid rgba(255,255,255,0.3); padding: .4rem; }
+
 .popup {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed; inset: 0;
   background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
 }
 .popup-content {
-  background: #fff;
-  color: #000;
-  border-radius: 10px;
-  padding: 1rem;
-  text-align: center;
+  background: #fff; color: #000;
+  border-radius: 10px; padding: 1rem;
+  width: 80%; max-width: 300px;
 }
 .hidden { display: none; }
 
 .menu {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
+  position: fixed; bottom: 10px; right: 10px;
+  z-index: 999;
 }
 #menuToggle {
   background: #ffcc00;
-  color: #b30000;
-  font-size: 1.2rem;
+  border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 45px; height: 45px;
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 #menuContent {
-  margin-top: 0.5rem;
   background: rgba(255,255,255,0.9);
   color: #000;
   border-radius: 10px;
-  padding: 0.5rem;
+  padding: .5rem;
+  margin-top: .5rem;
 }
-table { width: 100%; color: #fff; border-collapse: collapse; }
-th, td { border-bottom: 1px solid rgba(255,255,255,0.3); padding: 0.4rem; text-align: center; }
 
 @media (max-width:600px){
-  #wheelCanvas{ width: 250px; height: 250px; }
+  #wheelCanvas{width:260px;height:260px;}
 }
