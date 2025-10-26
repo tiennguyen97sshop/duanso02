@@ -123,13 +123,21 @@ function renderHistory() {
 }
 
 menuToggle.onclick = ()=>menuContent.classList.toggle("hidden");
-toggleMusic.onclick = ()=>{
-  if (bgMusic.paused) {
-    bgMusic.play();
-    toggleMusic.textContent = "🔊 Tắt nhạc";
-  } else {
-    bgMusic.pause();
-    toggleMusic.textContent = "🎵 Mở nhạc";
+let musicOn = false; // trạng thái ban đầu
+toggleMusic.onclick = async () => {
+  try {
+    if (!musicOn) {
+      await bgMusic.play();
+      musicOn = true;
+      toggleMusic.textContent = "🔇 Tắt nhạc";
+    } else {
+      bgMusic.pause();
+      musicOn = false;
+      toggleMusic.textContent = "🔊 Mở nhạc";
+    }
+  } catch (err) {
+    console.log("Trình duyệt chặn phát tự động:", err);
+    alert("Bạn cần chạm vào màn hình hoặc bấm nút một lần trước khi phát nhạc 🎵");
   }
 };
 
