@@ -1,6 +1,5 @@
 const namesInput = document.getElementById("names");
 const giftsInput = document.getElementById("gifts");
-const wheelSection = document.getElementById("wheel-section");
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
 const spinBtn = document.getElementById("spinButton");
@@ -17,96 +16,94 @@ const clearNames = document.getElementById("clearNames");
 const clearGifts = document.getElementById("clearGifts");
 const clearHistoryBottom = document.getElementById("clearHistoryBottom");
 
+let spinning = false, startAngle = 0, arc = 0;
 let segments = [];
-let startAngle = 0;
-let spinning = false;
-let arc = 0;
+let musicOn = false;
 
-// mặc định
-let defaultNames = ["Tiến","Hường","Tuấn","Huyền","Đạt","Bin"];
-let defaultGifts = ["100K","50K","Bút","Cặp Sách","Quần Đùi"];
-
+// dữ liệu mặc định
+const defaultNames = ["Tiến","Hường","Tuấn","Huyền","Đạt","Bin"];
+const defaultGifts = ["100K","50K","Bút","Cặp Sách","Quần Đùi"];
 namesInput.value = defaultNames.join(", ");
 giftsInput.value = defaultGifts.join(", ");
 
 function randomColor() {
-  return `hsl(${Math.floor(Math.random() * 360)}, 80%, 60%)`;
+  return `hsl(${Math.random() * 360},80%,60%)`;
 }
 
 function drawWheel() {
   const size = canvas.width / 2;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (segments.length === 0) return;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if (!segments.length) return;
   arc = Math.PI * 2 / segments.length;
-  for (let i = 0; i < segments.length; i++) {
+  for (let i=0;i<segments.length;i++){
     const angle = startAngle + i * arc;
     ctx.beginPath();
     ctx.fillStyle = segments[i].color;
-    ctx.moveTo(size, size);
-    ctx.arc(size, size, size, angle, angle + arc);
+    ctx.moveTo(size,size);
+    ctx.arc(size,size,size,angle,angle+arc);
     ctx.fill();
     ctx.save();
-    ctx.translate(size, size);
-    ctx.rotate(angle + arc / 2);
-    ctx.textAlign = "right";
+    ctx.translate(size,size);
+    ctx.rotate(angle + arc/2);
     ctx.fillStyle = "#000";
     ctx.font = "bold 14px sans-serif";
-    ctx.fillText(segments[i].label, size - 10, 5);
+    ctx.textAlign = "right";
+    ctx.fillText(segments[i].label, size-10, 5);
     ctx.restore();
   }
 }
 
-function spin() {
-  if (spinning || segments.length === 0) return;
-  spinning = true;
-  let spinTime = 0;
-  const spinTotal = 4000 + Math.random() * 2000;
-  const spinStart = 20 + Math.random() * 10;
+function updateSegments(){
+  let gifts = giftsInput.value.split(",").map(x=>x.trim()).filter(x=>x);
+  if (!gifts.length) gifts = defaultGifts;
+  segments = gifts.map(g=>({label:g,color:randomColor()}));
+  drawWheel();
+}
 
-  function rotate() {
+function spin(){
+  if (spinning || !segments.length) return;
+  spinning = true;
+  const spinTimeTotal = 4000 + Math.random()*2000;
+  let spinTime = 0;
+  let spinVel = 30 + Math.random()*10;
+
+  function rotate(){
     spinTime += 30;
-    if (spinTime >= spinTotal) {
+    if (spinTime >= spinTimeTotal) {
       finishSpin();
       return;
     }
-    const ease = easeOut(spinTime, 0, spinStart, spinTotal);
-    startAngle += (ease * Math.PI / 180);
+    const ease = easeOut(spinTime, 0, spinVel, spinTimeTotal);
+    startAngle += (ease * Math.PI/180);
     drawWheel();
     requestAnimationFrame(rotate);
   }
   rotate();
 }
 
-function easeOut(t, b, c, d) {
-  t /= d; t--;
-  return c*(t*t*t + 1) + b;
-}
+function easeOut(t,b,c,d){t/=d; t--; return c*(t*t*t+1)+b;}
 
-function finishSpin() {
+function finishSpin(){
   spinning = false;
-  const degrees = startAngle * 180 / Math.PI + 90;
+  const degrees = startAngle * 180/Math.PI + 90;
   const arcd = 360 / segments.length;
   const index = Math.floor((360 - (degrees % 360)) / arcd);
   const gift = segments[index].label;
   showPopup(gift);
 }
 
-function showPopup(gift) {
+function showPopup(gift){
   popup.classList.remove("hidden");
   popupText.textContent = `Bạn đã trúng: ${gift}`;
-  if (Math.random() < 0.01) { // Giải đặc biệt
-    document.body.style.backgroundImage = "url('assets/fireworks.gif')";
+  if (Math.random() < 0.01){
     winSound.play();
   }
   saveHistory(gift);
 }
 
-closePopup.onclick = () => {
-  popup.classList.add("hidden");
-  document.body.style.backgroundImage = "";
-};
+closePopup.onclick = ()=> popup.classList.add("hidden");
 
-function saveHistory(gift) {
+function saveHistory(gift){
   const names = namesInput.value.split(",").map(x=>x.trim()).filter(x=>x);
   const randomName = names.length ? names[Math.floor(Math.random()*names.length)] : "Người chơi";
   const time = new Date().toLocaleString("vi-VN");
@@ -116,15 +113,13 @@ function saveHistory(gift) {
   renderHistory();
 }
 
-function renderHistory() {
+function renderHistory(){
   const history = JSON.parse(localStorage.getItem("history")||"[]");
   const last10 = history.slice(-10);
   historyTable.innerHTML = last10.map(h=>`<tr><td>${h.name}</td><td>${h.gift}</td><td>${h.time}</td></tr>`).join("");
 }
 
-menuToggle.onclick = ()=>menuContent.classList.toggle("hidden");
-let musicOn = false; // trạng thái ban đầu
-toggleMusic.onclick = async () => {
+toggleMusic.onclick = async ()=>{
   try {
     if (!musicOn) {
       await bgMusic.play();
@@ -135,29 +130,18 @@ toggleMusic.onclick = async () => {
       musicOn = false;
       toggleMusic.textContent = "🔊 Mở nhạc";
     }
-  } catch (err) {
-    console.log("Trình duyệt chặn phát tự động:", err);
-    alert("Bạn cần chạm vào màn hình hoặc bấm nút một lần trước khi phát nhạc 🎵");
+  } catch(e) {
+    alert("Hãy chạm vào màn hình hoặc bấm nút một lần để bật nhạc 🎵");
   }
 };
 
-// xử lý nhập dữ liệu
-function updateSegments() {
-  let gifts = giftsInput.value.split(",").map(g=>g.trim()).filter(g=>g);
-  if (gifts.length === 0) gifts = defaultGifts;
-  segments = gifts.map(g=>({label:g,color:randomColor()}));
-  drawWheel();
-}
+menuToggle.onclick = ()=> menuContent.classList.toggle("hidden");
+clearNames.onclick = ()=> namesInput.value="";
+clearGifts.onclick = ()=>{ giftsInput.value=""; segments=[]; drawWheel(); };
+clearHistoryBottom.onclick = ()=>{ localStorage.removeItem("history"); renderHistory(); };
 
 namesInput.oninput = giftsInput.oninput = updateSegments;
-
-// nút xoá
-clearHistoryBottom.onclick = ()=>{ localStorage.removeItem("history"); renderHistory(); };
-clearNames.onclick = ()=>{ namesInput.value=""; };
-clearGifts.onclick = ()=>{ giftsInput.value=""; segments=[]; drawWheel(); };
-
 spinBtn.onclick = spin;
 
-// khởi tạo vòng quay
 updateSegments();
 renderHistory();
